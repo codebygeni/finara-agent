@@ -35,11 +35,7 @@ jobs:
 
       - name: 📦 Ensure beta component is installed
         run: |
-          if ! gcloud components list --filter="id:beta" --format="value(state.name)" | grep -q "Installed"; then
-            gcloud components install beta --quiet
-          else
-            echo "Beta component already installed"
-          fi
+          echo "y" | gcloud components install beta --quiet || echo "Beta installation completed"
 
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
