@@ -27,9 +27,8 @@ jobs:
         run: |
           yq -o=json '.' agent/hello_agent.yaml > agent/hello_agent.json
 
-      - name: 🚀 Install gcloud beta and Deploy Agent to Vertex AI
+      - name: 🚀 Deploy Agent to Vertex AI (beta)
         run: |
-          gcloud components install beta --quiet
           gcloud beta agent builder agents update \
             --agent=hello-agent \
             --agent-spec=agent/hello_agent.yaml \
