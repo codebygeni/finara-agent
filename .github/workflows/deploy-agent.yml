@@ -32,6 +32,10 @@ jobs:
         run: |
           test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
 
+      - name: 📦 Force install gcloud beta component
+        run: |
+          yes | gcloud components install beta --quiet || echo "Beta already installed or failed non-critically"
+
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
           gcloud beta agent builder agents update \
