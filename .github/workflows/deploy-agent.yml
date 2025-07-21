@@ -1,12 +1,7 @@
 name: Deploy Agent to Vertex AI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '**.yaml'
-      - '**.py'
+  workflow_dispatch:  # 👈 Manual trigger via GitHub UI
 
 jobs:
   deploy-agent:
@@ -38,4 +33,4 @@ jobs:
             -H "Authorization: Bearer $(gcloud auth print-access-token)" \
             -H "Content-Type: application/json" \
             -d @agent/hello_agent.json \
-            "https://$REGION-aiplatform.googleapis.com/v1/projects/$GOOGLE_PROJECT/locations/$REGION/agents"
+            "https://${{ env.REGION }}-aiplatform.googleapis.com/v1/projects/${{ env.GOOGLE_PROJECT }}/locations/${{ env.REGION }}/agents"
