@@ -5,54 +5,37 @@ on:
     branches:
       - main
     paths:
-      - '**.py'
       - '**.yaml'
+      - '**.py'
 
 jobs:
-  deploy:
+  deploy-agent:
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_PROJECT: geni-project
+      REGION: asia-south1
+
     steps:
       - name: ⏬ Checkout Code
         uses: actions/checkout@v3
 
-      - name: 🔐 Set up Google Cloud SDK with beta
-        run: |
-          # Download and install gcloud SDK
-          curl https://sdk.cloud.google.com | bash
-          source $HOME/google-cloud-sdk/path.bash.inc
-          
-          # Create service account key file
-          echo '${{ secrets.GCP_SA_KEY }}' | base64 -d > ${HOME}/gcp-key.json
-          
-          # Authenticate
-          gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          
-          # Install beta component non-interactively
-          gcloud config set core/disable_usage_reporting true
-          gcloud config set component_manager/disable_update_check true
-          yes | gcloud components install beta --quiet || echo "Beta already installed or not required"
-          
-          # Add gcloud to PATH for subsequent steps
-          echo "$HOME/google-cloud-sdk/bin" >> $GITHUB_PATH
+      - name: 🔐 Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: ✅ Validate Agent Spec
+      - name: 🛠 Install yq
         run: |
-          test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
+          sudo snap install yq
 
-      - name: 🧠 Deploy Agent to Vertex AI
+      - name: 📤 Convert YAML to JSON
         run: |
-          gcloud beta agent builder agents update \
-            --agent=hello-agent \
-            --agent-spec=agent/hello_agent.yaml \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
-            --location=global \
-            --quiet
+          yq -o=json '.' agent/hello_agent.yaml > agent/hello_agent.json
 
-      - name: 🧠 Deploy Agent via REST API
+      - name: 🚀 Deploy Agent to Vertex AI
         run: |
-          curl -X PATCH \
+          curl -X POST \
             -H "Authorization: Bearer $(gcloud auth print-access-token)" \
             -H "Content-Type: application/json" \
-            -d @agent/hello_agent.yaml \
-            "https://asia-south1-aiplatform.googleapis.com/v1/projects/${{ secrets.GCP_PROJECT_ID }}/locations/asia-south1/agents/hello-agent"
+            -d @agent/hello_agent.json \
+            "https://$REGION-aiplatform.googleapis.com/v1/projects/$GOOGLE_PROJECT/locations/$REGION/agents"
