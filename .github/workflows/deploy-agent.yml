@@ -15,37 +15,36 @@ jobs:
       - name: ⏬ Checkout Code
         uses: actions/checkout@v3
 
-      - name: 🔐 Authenticate to Google Cloud (with beta)
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: "530.0.0"
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-          install_components: beta
-
-      - name: 🔍 Verify gcloud installation and beta component
+      - name: 🔐 Set up Google Cloud SDK with beta
         run: |
-          gcloud --version
-          gcloud components list --filter="id:beta" --format="value(state.name)"
+          # Download and install gcloud SDK
+          curl https://sdk.cloud.google.com | bash
+          source $HOME/google-cloud-sdk/path.bash.inc
+          
+          # Create service account key file
+          echo '${{ secrets.GCP_SA_KEY }}' | base64 -d > ${HOME}/gcp-key.json
+          
+          # Authenticate
+          gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          
+          # Install beta component non-interactively
+          gcloud config set core/disable_usage_reporting true
+          gcloud config set component_manager/disable_update_check true
+          gcloud components install beta --quiet
+          
+          # Add gcloud to PATH for subsequent steps
+          echo "$HOME/google-cloud-sdk/bin" >> $GITHUB_PATH
 
       - name: ✅ Validate Agent Spec
         run: |
           test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
 
-      - name: 📦 Install expect and force install beta component
-        run: |
-          sudo apt-get update && sudo apt-get install -y expect
-          expect << 'EOF'
-          spawn gcloud components install beta --quiet
-          expect "Do you want to continue (Y/n)?" { send "Y\r" }
-          expect eof
-          EOF
-
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
-          expect << 'EOF'
-          spawn gcloud beta agent builder agents update --agent=hello-agent --agent-spec=agent/hello_agent.yaml --project=${{ secrets.GCP_PROJECT_ID }} --location=global --quiet
-          expect "Do you want to continue (Y/n)?" { send "Y\r" }
-          expect eof
-          EOF
+          gcloud beta agent builder agents update \
+            --agent=hello-agent \
+            --agent-spec=agent/hello_agent.yaml \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --location=global \
+            --quiet
