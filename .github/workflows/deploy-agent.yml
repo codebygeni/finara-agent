@@ -15,9 +15,6 @@ jobs:
       - name: ⏬ Checkout Code
         uses: actions/checkout@v3
 
-      - name: 🔍 Verify gcloud installation
-        run: gcloud --version
-
       - name: 🔐 Authenticate to Google Cloud (with beta)
         uses: google-github-actions/setup-gcloud@v2
         with:
@@ -27,14 +24,22 @@ jobs:
           export_default_credentials: true
           install_components: beta
 
+      - name: 🔍 Verify gcloud installation and beta component
+        run: |
+          gcloud --version
+          gcloud components list --filter="id:beta" --format="value(state.name)"
 
       - name: ✅ Validate Agent Spec
         run: |
           test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
 
-      - name: 📦 Force install gcloud beta component
+      - name: 📦 Ensure beta component is installed
         run: |
-          yes | gcloud components install beta --quiet || echo "Beta already installed or failed non-critically"
+          if ! gcloud components list --filter="id:beta" --format="value(state.name)" | grep -q "Installed"; then
+            gcloud components install beta --quiet
+          else
+            echo "Beta component already installed"
+          fi
 
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
