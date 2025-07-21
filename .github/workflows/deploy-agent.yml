@@ -24,4 +24,9 @@ jobs:
 
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
-          gcloud beta agent builder agents update             --agent=hello-agent             --agent-spec=agent/hello_agent.yaml             --project=${{ secrets.GCP_PROJECT_ID }}             --location=global
+          gcloud beta agent builder agents update \
+            --agent=hello-agent \
+            --agent-spec=agent/hello_agent.yaml \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --location=global \
+            --quiet
