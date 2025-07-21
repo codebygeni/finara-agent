@@ -22,6 +22,10 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
+      - name: 📦 Install gcloud beta component
+        run: |
+          gcloud components install beta --quiet
+
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
           gcloud beta agent builder agents update \
