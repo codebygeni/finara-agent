@@ -1,0 +1,4 @@
+.terraform
+secrets.txt
+.terraform.lock.hcl
+.DS_Store

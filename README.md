@@ -1,1 +1,3 @@
-# finara-infra
+# Finara HelloWorld Agent
+
+This is a simple Agentic AI agent for demonstration.

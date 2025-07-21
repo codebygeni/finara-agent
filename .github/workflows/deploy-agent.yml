@@ -1,0 +1,27 @@
+name: Deploy Agent to Vertex AI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.py'
+      - '**.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⏬ Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: 🧠 Deploy Agent to Vertex AI
+        run: |
+          gcloud beta agent builder agents update             --agent=hello-agent             --agent-spec=agent/hello_agent.yaml             --project=${{ secrets.GCP_PROJECT_ID }}             --location=global
