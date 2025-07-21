@@ -12,29 +12,27 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: ⏬ Checkout Code
         uses: actions/checkout@v3
 
-      - name: Verify gcloud installation
+      - name: 🔍 Verify gcloud installation
         run: gcloud --version
 
-      - name: Authenticate to Google Cloud
+      - name: 🔐 Authenticate to Google Cloud (with beta)
         uses: google-github-actions/setup-gcloud@v2
         with:
           version: "530.0.0"
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
+          install_components: beta
 
-      - name: Install gcloud beta component
-        run: |
-          gcloud components install beta --quiet || echo "Beta already installed or not supported in this environment"
 
-      - name: Validate Agent Spec
+      - name: ✅ Validate Agent Spec
         run: |
           test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
 
-      - name: Deploy Agent to Vertex AI
+      - name: 🧠 Deploy Agent to Vertex AI
         run: |
           gcloud beta agent builder agents update \
             --agent=hello-agent \
