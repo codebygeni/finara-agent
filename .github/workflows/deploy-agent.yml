@@ -31,7 +31,7 @@ jobs:
           # Install beta component non-interactively
           gcloud config set core/disable_usage_reporting true
           gcloud config set component_manager/disable_update_check true
-          gcloud components install beta --quiet
+          yes | gcloud components install beta --quiet || echo "Beta already installed or not required"
           
           # Add gcloud to PATH for subsequent steps
           echo "$HOME/google-cloud-sdk/bin" >> $GITHUB_PATH
