@@ -48,3 +48,11 @@ jobs:
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --location=global \
             --quiet
+
+      - name: 🧠 Deploy Agent via REST API
+        run: |
+          curl -X PATCH \
+            -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+            -H "Content-Type: application/json" \
+            -d @agent/hello_agent.yaml \
+            "https://asia-south1-aiplatform.googleapis.com/v1/projects/${{ secrets.GCP_PROJECT_ID }}/locations/asia-south1/agents/hello-agent"
