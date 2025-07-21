@@ -33,15 +33,21 @@ jobs:
         run: |
           test -f agent/hello_agent.yaml || (echo "Spec not found" && exit 1)
 
-      - name: 📦 Ensure beta component is installed
+      - name: 📦 Force install beta component
         run: |
-          echo "y" | gcloud components install beta --quiet || echo "Beta installation completed"
+          export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+          gcloud components install beta --quiet
+        env:
+          CLOUDSDK_CORE_DISABLE_PROMPTS: 1
 
       - name: 🧠 Deploy Agent to Vertex AI
         run: |
+          export CLOUDSDK_CORE_DISABLE_PROMPTS=1
           gcloud beta agent builder agents update \
             --agent=hello-agent \
             --agent-spec=agent/hello_agent.yaml \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --location=global \
             --quiet
+        env:
+          CLOUDSDK_CORE_DISABLE_PROMPTS: 1
