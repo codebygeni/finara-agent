@@ -27,10 +27,12 @@ jobs:
         run: |
           yq -o=json '.' agent/hello_agent.yaml > agent/hello_agent.json
 
-      - name: 🚀 Deploy Agent to Vertex AI
+      - name: 🚀 Install gcloud beta and Deploy Agent to Vertex AI
         run: |
-          curl -X POST \
-            -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-            -H "Content-Type: application/json" \
-            -d @agent/hello_agent.json \
-            "https://${{ env.REGION }}-aiplatform.googleapis.com/v1/projects/${{ env.GOOGLE_PROJECT }}/locations/${{ env.REGION }}/agents"
+          gcloud components install beta --quiet
+          gcloud beta agent builder agents update \
+            --agent=hello-agent \
+            --agent-spec=agent/hello_agent.yaml \
+            --project=${{ env.GOOGLE_PROJECT }} \
+            --location=global \
+            --quiet
