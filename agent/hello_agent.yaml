@@ -1,4 +1,0 @@
-name: hello-agent
-description: A simple HelloWorld agent for Finara
-entryPoint: agent.main:handle
-tools: []
