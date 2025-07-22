@@ -30,7 +30,7 @@ jobs:
 
       - name: Authenticate with service account
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > "${{ github.workspace }}/key.json"
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > "${{ github.workspace }}/key.json"
           gcloud auth activate-service-account --key-file="${{ github.workspace }}/key.json"
 
       - name: Configure Docker
