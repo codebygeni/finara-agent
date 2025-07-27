@@ -4,7 +4,7 @@ from google.adk.tools import FunctionTool, ToolContext
 import json
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 def call_tool_by_name(tool_name: str, tool_context: ToolContext, args: dict) -> str:
     """

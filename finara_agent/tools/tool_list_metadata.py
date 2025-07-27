@@ -4,10 +4,11 @@ import logging
 from google.adk.tools import FunctionTool, ToolContext
 
 # Setup logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 def dynamic_mcp_tool(tool_name: str, tool_context: ToolContext) -> str:
+    logger.info(f"Calling tool: {tool_name} with context type: {type(tool_context).__name__}")
     url = "http://localhost:8080/mcp/stream"
 
     headers = {

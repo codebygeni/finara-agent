@@ -13,6 +13,7 @@ from .sub_agents.mf_agent.agent import get_mf_agent
 from .sub_agents.net_worth_agent.agent import get_net_worth_agent
 from .sub_agents.spending_insights_agent.agent import get_spending_insights_agent
 from .sub_agents.fall_back_agent.agent import get_fall_back_queries_agent
+from .sub_agents.goal_agent.agent import get_goal_agent
 from finara_agent.tools.get_session_id import get_session_id
 from dotenv import load_dotenv
 
@@ -25,9 +26,10 @@ def get_finara_coordinator(session):
         description=(
             "first always check authentication status and session id, if it is not present call 'get_session_id' tool. "
             "Guide users through comprehensive financial management by orchestrating a series of expert subagents. "
-            "Help them analyze investments, track spending, monitor credit, optimize taxes, plan for retirement, and more. "
+            "Help them analyze investments, track spending, monitor credit, optimize taxes, plan for retirement, set and track financial goals, and more. "
             "Route to get_fall_back_queries_agent if query is broad, exploratory, or related to general financial advice, "
-            "government queries, or unrelated financial topics like 'how to apply for a PAN card' or 'can I get a loan of 50 lakhs'."
+            "government queries, or unrelated financial topics like 'how to apply for a PAN card' or 'can I get a loan of 50 lakhs'. "
+            "Route to get_goal_agent for financial goal analysis, achievement tracking, and structured planning questions."
         ),
         instruction=prompt.FINARA_ROOT_PROMPT,
         output_key="finara_coordinator_output",
@@ -39,29 +41,30 @@ def get_finara_coordinator(session):
             AgentTool(agent=get_net_worth_agent(session)),
             AgentTool(agent=get_spending_insights_agent(session)),
             AgentTool(agent=get_fall_back_queries_agent(session)),
+            AgentTool(agent=get_goal_agent(session)),
             get_session_id,
         ],
     )
-session_service = InMemorySessionService()
-session = session_service.create_session(user_id="21", app_name=os.getenv("APP_NAME", "finara_coordinator"))
+# session_service = InMemorySessionService()
+# session = session_service.create_session(user_id="21", app_name=os.getenv("APP_NAME", "finara_coordinator"))
 
-finara_agent_instance = get_finara_coordinator(session)
+# finara_agent_instance = get_finara_coordinator(session)
 
-load_dotenv()
+# load_dotenv()
 
-vertexai.init(
-    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
-    location=os.getenv("GOOGLE_CLOUD_LOCATION"),
-    staging_bucket="gs://geni-project_cloudbuild",
-)
+# vertexai.init(
+#     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+#     location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+#     staging_bucket="gs://geni-project_cloudbuild",
+# )
 
-remote_app = agent_engines.create(
-    display_name=os.getenv("APP_NAME", "finara_coordinator"),
-    agent_engine=finara_agent_instance,
-    requirements=[
-        "google-cloud-aiplatform[adk,agent_engines]",
-        "cloudpickle==3.1.1"
-    ]
-)
+# remote_app = agent_engines.create(
+#     display_name=os.getenv("APP_NAME", "finara_coordinator"),
+#     agent_engine=finara_agent_instance,
+#     requirements=[
+#         "google-cloud-aiplatform[adk,agent_engines]",
+#         "cloudpickle==3.1.1"
+#     ]
+# )
  
  

@@ -4,7 +4,7 @@ from google.adk.tools import FunctionTool
 from google.adk.tools import ToolContext
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 def get_session_id(tool_context: ToolContext) -> str:
     """

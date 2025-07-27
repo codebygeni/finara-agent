@@ -10,7 +10,7 @@ from finara_agent.sub_agents.net_worth_agent.agent import get_net_worth_agent
 from finara_agent.sub_agents.spending_insights_agent.agent import get_spending_insights_agent
  
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
  
 def get_fall_back_queries_agent(session):
     logger.info("Initializing fallback agent with parallel sub-agents...")

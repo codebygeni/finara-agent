@@ -12,9 +12,8 @@ from google.genai import types
 load_dotenv()
 
 # Reduce logging verbosity
-logging.getLogger("google_genai").setLevel(logging.WARNING)
-logging.getLogger("google_adk").setLevel(logging.WARNING)
-logging.getLogger("google.adk").setLevel(logging.WARNING)
+logging.getLogger("google_genai").setLevel(logging.ERROR)
+logging.getLogger("google_adk").setLevel(logging.ERROR)
 
 # ANSI color codes for terminal output
 class Colors:
@@ -45,12 +44,17 @@ class Colors:
 # ===== Initial Session State =====
 initial_state = {
     # Essential User Profile
-    "user_id": "21",
-    "user_email": "harshal21@gmail.com",
-    "user_name": "Harshal Sharma",
+    "user_id": "1",
+    "phone_number": "6666666666",
+    "user_email": "Sushrut@123gmail.com",
+    "user_name": "Sushrut",
+    "age": "21",
+    "city": "Mumbai",
+    "maritial_status":"Unmarried",
+    "dependents":"None",
     "is_authenticated": False,  # Start as not authenticated
-    "user_profile_segment": "early",
-    "prefered_language": "en",
+    "career_stage": "early_career",
+    "preferred_language": "Hindi",
     
     # MCP Session Management (Essential)
     "mcp_session_id": None,  # No static session
@@ -207,7 +211,7 @@ def update_session_state_after_execution(session, final_response):
         session.state["error_count"] = 0
         session.state["last_error"] = None
         
-        # Update conversation context (keep last 10 interactions)
+        # Update conversation context 
         context = session.state.get("conversation_context", [])
         context.append({
             "timestamp": datetime.now().isoformat(),
@@ -247,7 +251,7 @@ def handle_execution_error(session, error, user_query):
             print(f"{Colors.YELLOW}⚠️  Multiple errors detected. Type 'status' to check system health.{Colors.ENDC}")
 
 def display_agent_outputs(state):
-    """Display agent outputs from state - MINIMAL."""
+    """Display agent outputs from state """
     # Only show if there are actual outputs and they're different from what was just displayed
     outputs_found = False
     for key, value in state.items():
@@ -259,7 +263,7 @@ def display_agent_outputs(state):
         print(f"{Colors.YELLOW}No additional outputs to display.{Colors.RESET}")
 
 async def process_agent_response(event):
-    """Process and display agent response events - SIMPLIFIED."""
+    """Process and display agent response events """
     final_response = None
     
     # Check for final response
@@ -300,7 +304,7 @@ async def call_agent_async(runner, user_id, session_id, query, session_with_auth
     except Exception as e:
         print(f"{Colors.YELLOW}Warning: Could not sync session state: {e}{Colors.RESET}")
     
-    # Build conversation context for the agent (last 5 interactions)
+    # Build conversation context for the agent 
     interaction_history = session.state.get("interaction_history", [])
     context_messages = []
     
