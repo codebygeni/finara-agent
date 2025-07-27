@@ -1,0 +1,54 @@
+name: Finara Agentc AI Agent API Deployemnt
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: geni-project
+  REGION: asia-south1
+  SERVICE_NAME: adk-agent-api
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Decode service account key
+      run: echo "${{ secrets.GCP_SA_KEY_BASE64 }}" | base64 -d > "${{ github.workspace }}/service-account.json"
+
+    - name: Activate service account
+      run: |
+        gcloud auth activate-service-account --key-file="${{ github.workspace }}/service-account.json"
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1.1.1
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ github.workspace }}/service-account.json
+        export_default_credentials: true
+
+    - name: Authenticate Docker to Google Cloud
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Build and push container to Artifact Registry
+      run: |
+        gcloud builds submit --tag ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/finara-repo/${{ env.SERVICE_NAME }}:latest
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/finara-repo/${{ env.SERVICE_NAME }}:latest \
+          --region ${{ env.REGION }} \
+          --platform managed \
+          --allow-unauthenticated \
+          --port=8080
+
+    - name: Cleanup service account key
+      run: rm "${{ github.workspace }}/service-account.json"
