@@ -1,4 +1,25 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Only the specific cache directories in your project
+finara_agent/__pycache__/
+finara_agent/sub_agents/__pycache__/
+finara_agent/sub_agents/credit_card_agent/__pycache__/
+finara_agent/sub_agents/epf_agent/__pycache__/
+finara_agent/sub_agents/equity_agent/__pycache__/
+finara_agent/sub_agents/fall_back_agent/__pycache__/
+finara_agent/sub_agents/mf_agent/__pycache__/
+finara_agent/sub_agents/net_worth_agent/__pycache__/
+finara_agent/sub_agents/spending_insights_agent/__pycache__/
+finara_agent/tools/__pycache__/
+
+
 .terraform
 secrets.txt
 .terraform.lock.hcl
 .DS_Store
+
+service-account.json
