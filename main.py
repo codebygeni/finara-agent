@@ -1,3 +1,12 @@
+from fastapi import FastAPI
+import uvicorn
+
+# FastAPI app for health check
+app = FastAPI()
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 import asyncio
 import os
 import logging
@@ -549,6 +558,8 @@ async def main():
 if __name__ == "__main__":
     try:
         asyncio.run(main())
+        port = int(os.environ.get('PORT', 8080))
+        uvicorn.run("main:app", host="0.0.0.0", port=port)
     except Exception as e:
         print(f"{Colors.RED}❌ Fatal error starting Finara: {e}{Colors.ENDC}")
         print(f"{Colors.YELLOW}Please check your environment setup and try again.{Colors.ENDC}")
